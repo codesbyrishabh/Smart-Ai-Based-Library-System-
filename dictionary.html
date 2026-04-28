@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLIB | AI Dictionary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #121212;
+            --accent-cyan: #00d1ff;
+            --bg-light: #f8fafc;
+            --text-gray: #4a5568;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header matching your screenshot */
+        header {
+            background-color: var(--primary-dark);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: white; }
+        .logo span { color: var(--accent-cyan); }
+
+        /* Dictionary Main Container */
+        .dictionary-container {
+            max-width: 700px;
+            margin: 50px auto;
+            width: 90%;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px 25px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .search-btn {
+            background: var(--accent-cyan);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+
+        .search-btn:hover { opacity: 0.9; }
+
+        /* Result UI */
+        #result-area {
+            display: none; /* Hidden until search */
+            animation: fadeIn 0.5s ease;
+        }
+
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .word-title h1 { margin: 0; font-size: 2.5rem; color: var(--primary-dark); }
+        .phonetic { color: var(--accent-cyan); font-weight: 500; }
+
+        .meaning-box {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .part-of-speech {
+            font-style: italic;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            text-transform: capitalize;
+        }
+
+        .definition {
+            line-height: 1.6;
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .example {
+            color: #718096;
+            border-left: 3px solid var(--accent-cyan);
+            padding-left: 15px;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo">Smart<span>LIB</span></a>
+    <nav>
+        <span style="cursor: pointer;"><a href="index.html">Home</a></span>
+    </nav>
+</header>
+
+<div class="dictionary-container">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="margin-bottom: 10px;">Smart AI Dictionary</h2>
+        <p style="color: #718096;">Instantly discover meanings, phonetics, and examples.</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="wordInput" placeholder="Enter a word (e.g. Library, Digital...)" autofocus>
+        <button class="search-btn" onclick="searchWord()">Search</button>
+    </div>
+
+    <div id="result-area">
+        <div class="word-header">
+            <div class="word-title">
+                <h1 id="displayWord">Word</h1>
+                <span class="phonetic" id="displayPhonetic">/phonetic/</span>
+            </div>
+            <button onclick="playAudio()" style="background: none; border: none; color: var(--accent-cyan); cursor: pointer; font-size: 1.5rem;">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+        
+        <div class="meaning-box">
+            <span class="part-of-speech" id="displayPos">noun</span>
+            <p class="definition" id="displayDefinition">The definition will appear here.</p>
+            <p class="example" id="displayExample">"Example sentence goes here."</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function searchWord() {
+        const word = document.getElementById('wordInput').value;
+        const resultArea = document.getElementById('result-area');
+        
+        if (!word) return;
+
+        try {
+            const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            const data = await response.json();
+
+            if (data.title === "No Definitions Found") {
+                alert("Word not found. Try another!");
+                return;
+            }
+
+            // Populate Data
+            document.getElementById('displayWord').innerText = data[0].word;
+            document.getElementById('displayPhonetic').innerText = data[0].phonetic || "";
+            document.getElementById('displayPos').innerText = data[0].meanings[0].partOfSpeech;
+            document.getElementById('displayDefinition').innerText = data[0].meanings[0].definitions[0].definition;
+            
+            const example = data[0].meanings[0].definitions[0].example;
+            const exampleEl = document.getElementById('displayExample');
+            if (example) {
+                exampleEl.innerText = `"${example}"`;
+                exampleEl.style.display = "block";
+            } else {
+                exampleEl.style.display = "none";
+            }
+
+            resultArea.style.display = 'block';
+        } catch (error) {
+            console.error("Error fetching word:", error);
+        }
+    }
+
+    // Allow "Enter" key to search
+    document.getElementById('wordInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') searchWord();
+    });
+</script>
+
+</body>
+</html>
