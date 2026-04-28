@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLIB | AI Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-dark: #121212;
+            --accent-cyan: #00d1ff;
+            --bg-gray: #f4f7f9;
+            --card-white: #ffffff;
+            --text-dark: #2d3436;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-gray);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-dark);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo { font-size: 1.8rem; font-weight: 800; margin-bottom: 40px; text-decoration: none; color: white; }
+        .logo span { color: var(--accent-cyan); }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #b2bec3;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(0, 209, 255, 0.15);
+            color: var(--accent-cyan);
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* --- AI Recommendation Card --- */
+        .ai-section {
+            background: linear-gradient(135deg, #1e272e, #2f3542);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .ai-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        select, input {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .btn-ai {
+            background: var(--accent-cyan);
+            color: var(--primary-dark);
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,209,255,0.4); }
+
+        /* --- Dictionary & Recommendations Grid --- */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .glass-card {
+            background: var(--card-white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Dictionary UI */
+        .dictionary-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .dictionary-input-group input {
+            border: 2px solid #eee;
+            flex: 1;
+        }
+
+        #dictResult {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Book Recommendation Display */
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .rec-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.85rem;
+            border: 1px solid #eee;
+        }
+
+        .rec-card img { width: 100%; border-radius: 5px; margin-bottom: 8px; }
+
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <a href="#" class="logo">Smart<span>LIB</span></a>
+    <div class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</div>
+    <div class="nav-item"><i class="fas fa-book-open"></i> My Library</div>
+    <div class="nav-item"><i class="fas fa-robot"></i> AI Reader</div>
+    <div class="nav-item"><i class="fas fa-cog"></i> Settings</div>
+</aside>
+
+<main class="main-content">
+    <div class="header-top">
+        <h2>Welcome Back, Reader!</h2>
+        <div style="background: white; padding: 10px 20px; border-radius: 30px; font-weight: 600;">
+            <i class="fas fa-user-circle"></i> Guest User
+        </div>
+    </div>
+
+    <section class="ai-section">
+        <h3><i class="fas fa-wand-magic-sparkles"></i> AI Personal Librarian</h3>
+        <p>Tell me what you feel like reading today and I'll find the best match.</p>
+        <div class="ai-controls">
+            <select id="genreSelect">
+                <option value="Sci-Fi">Science Fiction</option>
+                <option value="Philosophy">Philosophy</option>
+                <option value="Tech">Technology & AI</option>
+                <option value="Mystery">Mystery & Thriller</option>
+            </select>
+            <button class="btn-ai" onclick="getRecommendations()">Generate Suggestions</button>
+        </div>
+
+        <div class="rec-grid" id="recOutput">
+            </div>
+    </section>
+
+    <div class="grid-layout">
+        <section class="glass-card">
+            <h3><i class="fas fa-spell-check" style="color: var(--accent-cyan);"></i> Smart Dictionary</h3>
+            <p style="color: #666; font-size: 0.9rem;">Instantly verify complex terms while you study.</p>
+            <div class="dictionary-input-group">
+                <input type="text" id="dictInput" placeholder="Enter word...">
+                <button class="btn-ai" onclick="fetchMeaning()">Search</button>
+            </div>
+            <div id="dictResult" style="display:none;">
+                <h4 id="wordTitle" style="margin:0; color: var(--accent-cyan); font-size: 1.5rem;">Word</h4>
+                <p id="wordMeaning" style="line-height: 1.5; color: #444;">Meaning will appear here.</p>
+                <em id="wordExample" style="color: #888; font-size: 0.9rem;"></em>
+            </div>
+        </section>
+
+        <section class="glass-card">
+            <h3>Daily Progress</h3>
+            <div style="text-align: center; padding: 20px 0;">
+                <h1 style="margin:0; font-size: 3rem; color: var(--primary-dark);">85%</h1>
+                <p style="color: #888;">Reading Goal Reached</p>
+                <div style="width:100%; height:8px; background:#eee; border-radius:10px; margin-top:10px;">
+                    <div style="width:85%; height:100%; background:var(--accent-cyan); border-radius:10px;"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    // --- AI Recommendation Logic ---
+    const bookData = {
+        "Sci-Fi": [
+            { title: "Project Hail Mary", img: "https://picsum.photos/seed/p1/200/300" },
+            { title: "Dune", img: "https://picsum.photos/seed/p2/200/300" },
+            { title: "Neuromancer", img: "https://picsum.photos/seed/p3/200/300" }
+        ],
+        "Philosophy": [
+            { title: "Beyond Good and Evil", img: "https://picsum.photos/seed/p4/200/300" },
+            { title: "Meditations", img: "https://picsum.photos/seed/p5/200/300" },
+            { title: "The Stranger", img: "https://picsum.photos/seed/p6/200/300" }
+        ],
+        "Tech": [
+            { title: "Clean Code", img: "https://picsum.photos/seed/p7/200/300" },
+            { title: "AI Superpowers", img: "https://picsum.photos/seed/p8/200/300" },
+            { title: "The Pragmatic Programmer", img: "https://picsum.photos/seed/p9/200/300" }
+        ],
+        "Mystery": [
+            { title: "The Silent Patient", img: "https://picsum.photos/seed/p10/200/300" },
+            { title: "Gone Girl", img: "https://picsum.photos/seed/p11/200/300" },
+            { title: "Sherlock Holmes", img: "https://picsum.photos/seed/p12/200/300" }
+        ]
+    };
+
+    function getRecommendations() {
+        const genre = document.getElementById('genreSelect').value;
+        const container = document.getElementById('recOutput');
+        container.innerHTML = ''; // Clear previous
+
+        bookData[genre].forEach(book => {
+            container.innerHTML += `
+                <div class="rec-card">
+                    <img src="${book.img}" alt="cover">
+                    <strong>${book.title}</strong>
+                </div>
+            `;
+        });
+    }
+
+    // --- Dictionary Logic ---
+    async function fetchMeaning() {
+        const word = document.getElementById('dictInput').value;
+        const resultDiv = document.getElementById('dictResult');
+        
+        if (!word) return;
+
+        try {
+            const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            const data = await response.json();
+
+            if (data[0]) {
+                resultDiv.style.display = 'block';
+                document.getElementById('wordTitle').innerText = data[0].word;
+                document.getElementById('wordMeaning').innerText = data[0].meanings[0].definitions[0].definition;
+                const ex = data[0].meanings[0].definitions[0].example;
+                document.getElementById('wordExample').innerText = ex ? `"${ex}"` : "";
+            }
+        } catch (error) {
+            alert("Word not found. Try 'Knowledge' or 'Library'!");
+        }
+    }
+</script>
+
+</body>
+</html>
