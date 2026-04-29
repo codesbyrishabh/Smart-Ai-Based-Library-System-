@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartLIB - AI Smart Library</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">Smart<span>LIB</span></div>
+  <input type="text" placeholder="Search books, authors, topics...">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="books.html">Books</a>
+    <a href="ai_reader.html">AI Reader</a>
+    <a href="dictionary.html">Dictionary</a>
+    <a href="login.html">Login</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Smart AI-Based Digital Library</h1>
+    <p>Read • Learn • Summarize • Discover</p>
+    <button>Explore Library</button>
+  </div>
+</section>
+
+
+<section class="section">
+  <h2>Popular Books</h2>
+  <div class="book-grid">
+    <div class="book-card">
+      <img src="https://covers.openlibrary.org/b/id/10521267-L.jpg">
+      <h4>Data Structures</h4>
+      <p>₹299</p>
+    </div>
+    <div class="book-card">
+      <img src="https://covers.openlibrary.org/b/id/10909258-L.jpg">
+      <h4>AI Basics</h4>
+      <p>₹349</p>
+    </div>
+    <div class="book-card">
+      <img src="https://covers.openlibrary.org/b/id/11153230-L.jpg">
+      <h4>Spring Boot</h4>
+      <p>₹399</p>
+    </div>
+  </div>
+</section>
+
+<!-- AI FEATURES -->
+<section class="ai-section">
+  <h2>AI Smart Features</h2>
+  <div class="ai-grid">
+    <div class="ai-box">📚 AI Book Recommendation</div>
+    <div class="ai-box">🧠 Personalized Dictionary</div>
+    <div class="ai-box">💬 Chat with Book</div>
+    <div class="ai-box">📝 Auto Summary</div>
+    <div class="ai-box">🎧 Text to Speech</div>
+    <div class="ai-box">📊 Reading Analytics</div>
+  </div>
+</section>
+
+<!-- DIGITAL READER -->
+<section class="reader">
+  <h2>Digital Reading Panel</h2>
+  <div class="reader-box">
+    <p id="readerText">
+      Artificial Intelligence is the simulation of human intelligence in machines.
+    </p>
+    <button onclick="explain()"><a href="ai_reader.html">Explain with AI</a></button>
+  </div>
+</section>
+
+<!-- DICTIONARY -->
+<section class="dictionary">
+  <h2>Personalized Dictionary</h2>
+  <input id="word" placeholder="Enter word">
+  <button onclick="lookup()">Lookup</button>
+  <p id="meaning"></p>
+</section>
+<script>
+  async function lookup() {
+    let word = document.getElementById("word").value;
+    if(word === "") {
+        document.getElementById("meaning").innerText =
+            "Please enter a word";
+        return;
+    }
+
+    try {
+
+        let response = await fetch(
+            `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+        );
+
+        let data = await response.json();
+
+        let meaning =
+            data[0].meanings[0].definitions[0].definition;
+
+        document.getElementById("meaning").innerText = meaning;
+
+    } catch(error) {
+
+        document.getElementById("meaning").innerText =
+            "Word not found!";
+    }
+}
+</script>
+
+<!-- AI BOOK RECOMMEnDeD system-->
+<section class="recommended">
+  <h2>AI Book Recommendation</h2>
+  <input type="text" id="interest" placeholder="Enter your interest (e.g. AI, Fiction)">
+  <button onclick="Recommend()">Recommend</button>
+  <div id="result"></div>
+  <p id="meaning"></p>
+</section>
+
+<script>
+  function Recommend() {
+
+    let interest =
+      document.getElementById("interest").value.toLowerCase();
+
+    let result = "";
+
+    if(interest.includes("python")) {
+        result = "Python Crash Course, Fluent Python";
+    }
+    else if(interest.includes("ai")) {
+        result = "AI Basics, Deep Learning Intro";
+    }
+    else {
+        result = "Try Popular Books: DSA, Java, AI Basics";
+    }
+    document.getElementById("result").innerText = result;
+}
+</script>
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 SmartLIB | AI Smart Library System</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
